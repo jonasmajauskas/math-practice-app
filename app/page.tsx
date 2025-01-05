@@ -54,6 +54,7 @@ export default function MathPractice() {
         resetInputStatus();
       }
     } catch (error) {
+      console.error("Evaluation error:", error);
       setFeedback("Error evaluating the equation.");
       setInputStatus("error");
     }
