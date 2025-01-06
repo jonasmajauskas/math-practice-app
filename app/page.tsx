@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { evaluate, round } from "mathjs";
+import DrawingPanel from "./editor";
 
 type Operation = "+" | "-" | "*" | "/" | "frac" | "percent";
 
@@ -13,6 +14,7 @@ export default function MathPractice() {
   const [operation, setOperation] = useState<Operation>("+");
   const [difficulty, setDifficulty] = useState(1);
   const [inputStatus, setInputStatus] = useState(""); // Track input status
+  const [isDrawingPanelOpen, setIsDrawingPanelOpen] = useState(false);
 
   useEffect(() => {
     setEquation(generateEquation(operation, difficulty));
@@ -21,7 +23,7 @@ export default function MathPractice() {
   const resetInputStatus = () => {
     setTimeout(() => setInputStatus(""), 2000);
   };
-  
+
 
   const handleSubmit = () => {
     if (input.trim() === "") {
@@ -85,9 +87,16 @@ export default function MathPractice() {
   };
 
   const handleButtonClick = (value: string) => {
-    setInput(input + value);
+    if (value === '📝') {
+      console.log("Special action triggered for '📝'!");
+      // Add custom logic for "📝" here (e.g., clearing input or triggering another action)
+      setInput("");
+      setIsDrawingPanelOpen(true)
+    } else {
+      setInput((prevInput) => prevInput + value);
+    }
   };
-
+  
   const getInputBackgroundColor = () => {
     switch (inputStatus) {
       case "correct":
@@ -109,6 +118,7 @@ export default function MathPractice() {
         fontFamily: "Arial, sans-serif",
         display: "flex",
         flexDirection: "column",
+        backgroundColor: "black"
       }}
     >
       <div
@@ -145,13 +155,13 @@ export default function MathPractice() {
       </div>
 
       <p style={{ fontSize: "20px", marginTop: "5px" }}>
-  {feedback.split('. ').map((sentence, index) => (
-    <span key={index}>
-      {sentence.trim()}
-      {index < feedback.split('. ').length - 1 && <br />}
-    </span>
-  ))}
-</p>
+        {feedback.split('. ').map((sentence, index) => (
+          <span key={index}>
+            {sentence.trim()}
+            {index < feedback.split('. ').length - 1 && <br />}
+          </span>
+        ))}
+      </p>
 
       <div
         style={{
@@ -166,7 +176,7 @@ export default function MathPractice() {
         }}
       >
         {/* Render the number and dot buttons */}
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0].map((num, index) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, '📝'].map((num, index) => (
           <button
             key={index}
             onClick={() => handleButtonClick(num.toString())}
@@ -184,6 +194,8 @@ export default function MathPractice() {
           </button>
         ))}
 
+        
+
         {/* Submit button */}
         <button
           onClick={handleSubmit} // Submit logic
@@ -192,7 +204,7 @@ export default function MathPractice() {
             padding: "20px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            backgroundColor: "#007BFF",
+            backgroundColor: "green",
             color: "white",
             gridColumn: "span 3",
             cursor: "pointer",
@@ -209,8 +221,8 @@ export default function MathPractice() {
             padding: "20px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            backgroundColor: "#28a745",
-            color: "white",
+            backgroundColor: "white",
+            color: "black",
             gridColumn: "span 3",
             cursor: "pointer",
           }}
@@ -226,7 +238,7 @@ export default function MathPractice() {
             padding: "20px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            backgroundColor: "#ffcccc",
+            backgroundColor: "white",
             color: "black",
             gridColumn: "span 3",
             cursor: "pointer",
@@ -289,7 +301,7 @@ export default function MathPractice() {
         Go Back
       </button> */}
 
-      <div style={{ marginBottom: "20px" }}>
+      {/* <div style={{ marginBottom: "20px" }}>
         <label htmlFor="operation">Choose Operation: </label>
         <select
           id="operation"
@@ -312,9 +324,103 @@ export default function MathPractice() {
           <option value="frac">Fractions</option>
           <option value="percent">Percentages</option>
         </select>
+      </div> */}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          margin: "20px 0",
+          // width: "100%"
+        }}
+      >
+        {/* Operation */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "20px",
+            borderRadius: "10px",
+            backgroundColor: "white",
+            color: "black",
+            fontSize: "20px",
+            fontWeight: "bold",
+            marginBottom: "10px",
+            border: "1px solid #ccc",
+            gridColumn: "span 3",
+            cursor: "pointer",
+            width: "90%", // Adjusts width based on screen size
+            maxWidth: "500px", // Caps the maximum width
+          }}
+        >
+          <span>Operation:</span>
+          <select
+            value={operation}
+            onChange={handleOperationChange}
+            style={{
+              fontSize: "18px",
+              padding: "5px",
+              borderRadius: "5px",
+              border: "none",
+              backgroundColor: "white",
+              color: "black",
+            }}
+          >
+            <option value="+">Addition</option>
+            <option value="-">Subtraction</option>
+            <option value="*">Multiplication</option>
+            <option value="/">Division</option>
+            <option value="frac">Fractions</option>
+            <option value="percent">Percentages</option>
+          </select>
+        </div>
+
+        {/* Difficulty */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "20px",
+            borderRadius: "10px",
+            backgroundColor: "white",
+            color: "black",
+            fontSize: "20px",
+            fontWeight: "bold",
+            marginBottom: "10px",
+            border: "1px solid #ccc",
+            gridColumn: "span 3",
+            cursor: "pointer",
+            width: "90%", // Adjusts width based on screen size
+            maxWidth: "500px", // Caps the maximum width
+          }}
+        >
+          <span>Difficulty:</span>
+          <select
+            value={difficulty}
+            onChange={handleDifficultyChange}
+            style={{
+              fontSize: "18px",
+              padding: "5px",
+              borderRadius: "5px",
+              border: "none",
+              backgroundColor: "white",
+              color: "black",
+            }}
+          >
+            {[...Array(10).keys()].map((i) => (
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
+
+      {/* <div style={{ marginBottom: "20px" }}>
         <label htmlFor="difficulty">Select Difficulty (1-10): </label>
         <select
           id="difficulty"
@@ -336,7 +442,12 @@ export default function MathPractice() {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
+
+            <DrawingPanel
+        isOpen={isDrawingPanelOpen}
+        onClose={() => setIsDrawingPanelOpen(false)}
+      />
     </div>
   );
 }
