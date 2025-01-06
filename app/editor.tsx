@@ -119,7 +119,7 @@ const CalculatorPanel: React.FC<CalculatorPanelProps> = ({
               gap: "10px",
             }}
           >
-            {["+", "-", "*", "/"].map((op, index) => (
+            {["+", "-", "*", "/"].map((op) => (
               <button
                 key={op}
                 onClick={() => handleInput(op)}
