@@ -1,82 +1,31 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState } from "react";
 
-interface DrawingPanelProps {
+interface CalculatorPanelProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const DrawingPanel: React.FC<DrawingPanelProps> = ({ isOpen, onClose }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawing = useRef(false);
+const CalculatorPanel: React.FC<CalculatorPanelProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const [input, setInput] = useState("");
 
-  useEffect(() => {
-    if (!isOpen) return;
+  const handleInput = (value: string) => {
+    setInput((prev) => prev + value);
+  };
 
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-
-    if (canvas && context) {
-      // Set canvas to full panel dimensions
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-
-      // Drawing configurations
-      context.lineWidth = 3;
-      context.lineCap = "round";
-      context.strokeStyle = "black";
-
-      const startDrawing = (event: MouseEvent | TouchEvent) => {
-        isDrawing.current = true;
-        const { x, y } = getCursorPosition(event, canvas);
-        context.beginPath();
-        context.moveTo(x, y);
-      };
-
-      const draw = (event: MouseEvent | TouchEvent) => {
-        if (!isDrawing.current) return;
-        const { x, y } = getCursorPosition(event, canvas);
-        context.lineTo(x, y);
-        context.stroke();
-      };
-
-      const stopDrawing = () => {
-        isDrawing.current = false;
-        context.closePath();
-      };
-
-      // Event listeners for drawing
-      canvas.addEventListener("mousedown", startDrawing);
-      canvas.addEventListener("mousemove", draw);
-      canvas.addEventListener("mouseup", stopDrawing);
-
-      canvas.addEventListener("touchstart", startDrawing);
-      canvas.addEventListener("touchmove", draw);
-      canvas.addEventListener("touchend", stopDrawing);
-
-      // Cleanup event listeners on unmount
-      return () => {
-        canvas.removeEventListener("mousedown", startDrawing);
-        canvas.removeEventListener("mousemove", draw);
-        canvas.removeEventListener("mouseup", stopDrawing);
-
-        canvas.removeEventListener("touchstart", startDrawing);
-        canvas.removeEventListener("touchmove", draw);
-        canvas.removeEventListener("touchend", stopDrawing);
-      };
+  const calculateResult = () => {
+    try {
+      const evalResult = new Function(`return ${input}`)();
+      setInput(evalResult.toString());
+    } catch {
+      alert("Invalid expression");
     }
-  }, [isOpen]);
+  };
 
-  // Helper function to get cursor position
-  const getCursorPosition = (
-    event: MouseEvent | TouchEvent,
-    canvas: HTMLCanvasElement
-  ) => {
-    const rect = canvas.getBoundingClientRect();
-    const clientX =
-      "touches" in event ? event.touches[0].clientX : event.clientX;
-    const clientY =
-      "touches" in event ? event.touches[0].clientY : event.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
+  const clearInput = () => {
+    setInput("");
   };
 
   if (!isOpen) return null;
@@ -97,35 +46,157 @@ const DrawingPanel: React.FC<DrawingPanelProps> = ({ isOpen, onClose }) => {
     >
       <div
         style={{
-          width: "80%",
-          height: "80%",
+          height: "60%",
+          width: "90%", // Adjust width to be 90% of the viewport width
           backgroundColor: "white",
           borderRadius: "10px",
           padding: "20px",
-          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h2 style={{ marginBottom: "10px" }}>Drawing Panel</h2>
-        <canvas
-          ref={canvasRef}
+        {/* Display Current Input */}
+        <div
           style={{
-            width: "100%",
-            height: "calc(100% - 50px)",
+            height: "50px",
+            fontSize: "1.5rem",
+            color: "black",
             border: "1px solid #ccc",
-            cursor: "crosshair",
-            touchAction: "none", // Prevents touch scrolling
+            borderRadius: "5px",
+            padding: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            backgroundColor: "#f9f9f9",
           }}
-        ></canvas>
+        >
+          {input || "0"}
+        </div>
+
+        {/* Calculator Buttons */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            gap: "10px",
+            color: "black",
+            marginTop: "20px",
+          }}
+        >
+          {/* Number Buttons */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "10px",
+            }}
+          >
+            {[..."7894561230."].map((digit) => (
+              <button
+                key={digit}
+                onClick={() => handleInput(digit)}
+                style={{
+                  padding: "15px",
+                  fontSize: "1rem",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                  cursor: "pointer",
+                  backgroundColor: "white",
+                }}
+              >
+                {digit}
+              </button>
+            ))}
+          </div>
+
+          {/* Operator Buttons */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
+            {["+", "-", "*", "/"].map((op, index) => (
+              <button
+                key={op}
+                onClick={() => handleInput(op)}
+                style={{
+                  padding: "15px",
+                  fontSize: "1rem",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                  cursor: "pointer",
+                  backgroundColor: "white",
+                  color: "black",
+                }}
+              >
+                {op}
+              </button>
+            ))}
+            {/* Equals Button */}
+            {/* <button
+              onClick={calculateResult}
+              style={{
+                padding: "15px",
+                fontSize: "1rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                cursor: "pointer",
+                backgroundColor: "#4CAF50",
+                color: "white",
+              }}
+            >
+              =
+            </button> */}
+          </div>
+        </div>
+
+        <button
+          onClick={calculateResult}
+          style={{
+            marginTop: "10px",
+            padding: "15px",
+            fontSize: "1rem",
+            borderRadius: "5px",
+            backgroundColor: "#D7D8D8",
+            color: "black",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Calculate
+        </button>
+
+        {/* Clear Button */}
+        <button
+          onClick={clearInput}
+          style={{
+            marginTop: "10px",
+            padding: "15px",
+            fontSize: "1rem",
+            borderRadius: "5px",
+            backgroundColor: "#D7D8D8",
+            color: "black",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Clear
+        </button>
+
+        {/* Close Button */}
         <button
           onClick={onClose}
           style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            padding: "10px",
+            marginTop: "10px",
+            padding: "15px",
+            fontSize: "1rem",
             borderRadius: "5px",
-            backgroundColor: "red",
-            color: "white",
+            backgroundColor: "#D7D8D8",
+            color: "black",
             border: "none",
             cursor: "pointer",
           }}
@@ -137,4 +208,4 @@ const DrawingPanel: React.FC<DrawingPanelProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default DrawingPanel;
+export default CalculatorPanel;

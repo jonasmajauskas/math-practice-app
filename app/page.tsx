@@ -118,7 +118,7 @@ export default function MathPractice() {
         fontFamily: "Arial, sans-serif",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "black"
+        backgroundColor: "white"
       }}
     >
       <div
@@ -126,6 +126,7 @@ export default function MathPractice() {
           display: "flex",
           alignItems: "center",
           fontSize: "50px",
+          color: 'black',
           marginBottom: "20px",
           justifyContent: "center", // Centers content horizontally within the grid
         }}
