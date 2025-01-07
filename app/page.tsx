@@ -3,8 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { evaluate, round } from "mathjs";
 import DrawingPanel from "./editor";
+import AlertModal from "./alertModal";
+import CalculateIcon from '@mui/icons-material/Calculate';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ClearIcon from "@mui/icons-material/Clear";
+import ArrowForward from "@mui/icons-material/ArrowForward";
 
-type Operation = "+" | "-" | "*" | "/" | "frac" | "percent";
+type Operation = "+" | "-" | "*" | "/" | "frac" | "percent" | "earnings_growth";
 
 export default function MathPractice() {
   const [equation, setEquation] = useState("");
@@ -15,6 +20,7 @@ export default function MathPractice() {
   const [difficulty, setDifficulty] = useState(1);
   const [inputStatus, setInputStatus] = useState(""); // Track input status
   const [isDrawingPanelOpen, setIsDrawingPanelOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setEquation(generateEquation(operation, difficulty));
@@ -28,6 +34,7 @@ export default function MathPractice() {
   const handleSubmit = () => {
     if (input.trim() === "") {
       setFeedback("Please enter a valid number.");
+      setIsModalOpen(true);
       return;
     }
 
@@ -38,21 +45,25 @@ export default function MathPractice() {
           .match(/\d+/g)
           ?.map(Number) ?? [0, 0];
         correctAnswer = round((percent / 100) * of, 2);
+      } else if (operation === "earnings_growth") {
+        const [previousEPS, currentEPS] = equation
+          .match(/\d+/g)
+          ?.map(Number) ?? [0, 0];
+        correctAnswer = round(((currentEPS - previousEPS) / previousEPS) * 100, 2); // EPS growth percentage formula
       } else {
         correctAnswer = round(evaluate(equation), 2);
       }
 
       if (parseFloat(input) === correctAnswer) {
         setFeedback("✅ Correct!");
-        setInputStatus("correct"); // Mark input as correct
-
+        setInputStatus("correct");
         resetInputStatus();
       } else {
         setFeedback(
           `❌ Incorrect. The correct answer is ${correctAnswer}. You entered ${input}.`
         );
-        setInputStatus("incorrect"); // Mark input as incorrect
-
+        setIsModalOpen(true);
+        setInputStatus("incorrect");
         resetInputStatus();
       }
     } catch (error) {
@@ -66,6 +77,7 @@ export default function MathPractice() {
     setEquation(generateEquation(operation, difficulty));
   };
 
+  const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate'];
 
   const handleBack = () => {
     if (previousEquation) {
@@ -87,13 +99,12 @@ export default function MathPractice() {
   };
 
   const handleButtonClick = (value: string) => {
-    if (value === '📝') {
-      console.log("Special action triggered for '📝'!");
-      // Add custom logic for "📝" here (e.g., clearing input or triggering another action)
-      setInput("");
-      setIsDrawingPanelOpen(true)
+    if (value === 'calculate-icon') {
+      console.log("Special action triggered for CalculateIcon!");
+      setInput(""); // Clear the input
+      setIsDrawingPanelOpen(true); // Open the drawing panel
     } else {
-      setInput((prevInput) => prevInput + value);
+      setInput((prevInput) => prevInput + value); // Append the value to the input string
     }
   };
   
@@ -118,7 +129,8 @@ export default function MathPractice() {
         fontFamily: "Arial, sans-serif",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "white"
+        backgroundColor: "white",
+        alignItems: "center",  // Align input to the right
       }}
     >
       <div
@@ -133,7 +145,7 @@ export default function MathPractice() {
       >
         <strong>{equation}</strong>
 
-        <span style={{ margin: "0 10px" }}>=</span>
+        {/* <span style={{ margin: "0 10px" }}>=</span>
         <input
           type="text"
           value={input}
@@ -152,17 +164,37 @@ export default function MathPractice() {
             transition: "background-color 0.3s",
           }}
           autoFocus
-        />
+        /> */}
       </div>
 
-      <p style={{ fontSize: "20px", marginTop: "5px" }}>
+      {/* <p style={{ fontSize: "20px", marginTop: "5px" }}>
         {feedback.split('. ').map((sentence, index) => (
           <span key={index}>
             {sentence.trim()}
             {index < feedback.split('. ').length - 1 && <br />}
           </span>
         ))}
-      </p>
+      </p> */}
+
+      <input
+          type="text"
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+            setInputStatus(""); // Reset input status while typing
+          }}
+          style={{
+            fontSize: "18px",
+            padding: "10px",
+            width: "100px",
+            borderRadius: "5px",
+            border: "1px solid #ccc",
+            color: "black",
+            backgroundColor: getInputBackgroundColor(),
+            transition: "background-color 0.3s",
+          }}
+          autoFocus
+        />
 
       <div
         style={{
@@ -172,28 +204,33 @@ export default function MathPractice() {
           width: "90%", // Adjusts width based on screen size
           maxWidth: "500px", // Caps the maximum width
           margin: "0 auto", // Centers horizontally
+          marginTop: "10px",
           justifyContent: "center", // Centers content horizontally within the grid
-          alignContent: "center", // Centers content vertically if height is constrained
+          alignContent: "center",
         }}
       >
-        {/* Render the number and dot buttons */}
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, '📝'].map((num, index) => (
-          <button
-            key={index}
-            onClick={() => handleButtonClick(num.toString())}
-            style={{
-              fontSize: "24px",
-              padding: "30px",
-              borderRadius: "10px",
-              border: "1px solid #ccc",
-              backgroundColor: "#f1f1f1",
-              color: "black",
-              cursor: "pointer",
-            }}
-          >
-            {num}
-          </button>
-        ))}
+                {/* <span style={{ margin: "0 10px" }}>=</span> */}
+
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate-icon'].map((num, index) => (
+        <button
+          key={index}
+          onClick={() => handleButtonClick(num === 'calculate-icon' ? 'calculate-icon' : num.toString())}
+          style={{
+            fontSize: "30px",
+            padding: "20px",
+            borderRadius: "10px",
+            border: "1px solid #ccc",
+            backgroundColor: "#f1f1f1",
+            color: "black",
+            cursor: "pointer",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {num === 'calculate-icon' ? <CalculateIcon style={{ fontSize: "35px" }} /> : num}
+        </button>
+      ))}
 
         
 
@@ -204,32 +241,40 @@ export default function MathPractice() {
             fontSize: "20px",
             padding: "20px",
             borderRadius: "10px",
-            border: "1px solid #ccc",
-            backgroundColor: "green",
-            color: "white",
-            gridColumn: "span 3",
-            cursor: "pointer",
-          }}
-        >
-          Submit
-        </button>
-
-        {/* Back button */}
-        <button
-          onClick={handleBack} // Back logic
-          style={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
+            border: "2px solid green",
             backgroundColor: "white",
             color: "black",
             gridColumn: "span 3",
             cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px", // Space between icon and text
           }}
         >
-          Back
+       Submit <ArrowForward style={{ fontSize: "24px" }} />
         </button>
+
+        {/* Back button */}
+        <button
+      onClick={handleBack}
+      style={{
+        fontSize: "20px",
+        padding: "20px",
+        borderRadius: "10px",
+        border: "1px solid #ccc",
+        backgroundColor: "white",
+        color: "black",
+        gridColumn: "span 3",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px", // Space between icon and text
+      }}
+    >
+      <ArrowBackIcon style={{ fontSize: "24px" }} /> Back
+    </button>
 
         {/* Clear button */}
         <button
@@ -243,9 +288,13 @@ export default function MathPractice() {
             color: "black",
             gridColumn: "span 3",
             cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px", // Space between icon and text
           }}
         >
-          Clear
+          <ClearIcon style={{ fontSize: "24px" }} /> Clear
         </button>
       </div>
 
@@ -333,7 +382,7 @@ export default function MathPractice() {
           flexDirection: "column",
           alignItems: "center",
           margin: "20px 0",
-          // width: "100%"
+          width: "100%"
         }}
       >
         {/* Operation */}
@@ -375,6 +424,7 @@ export default function MathPractice() {
             <option value="/">Division</option>
             <option value="frac">Fractions</option>
             <option value="percent">Percentages</option>
+            <option value="earnings_growth">Earnings Growth</option>
           </select>
         </div>
 
@@ -449,6 +499,12 @@ export default function MathPractice() {
         isOpen={isDrawingPanelOpen}
         onClose={() => setIsDrawingPanelOpen(false)}
       />
+
+<AlertModal
+        isOpen={isModalOpen}
+        message={feedback}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
@@ -458,6 +514,12 @@ function generateEquation(operation: Operation, difficulty: number) {
 
   const num1 = Math.floor(Math.random() * max) + 1;
   let num2 = Math.floor(Math.random() * max) + 1;
+
+  if (operation === "earnings_growth") {
+    const previousEPS = Math.floor(Math.random() * 100 + 1) * difficulty;
+    const currentEPS = previousEPS + Math.floor(Math.random() * 50 + 1);
+    return `${previousEPS} to ${currentEPS} EPS growth percentage`;
+  }
 
   if (operation === "/") {
     num2 = Math.max(num2, 1);
@@ -475,7 +537,7 @@ function generateEquation(operation: Operation, difficulty: number) {
     case "frac":
       return `${num1} / ${num2}`;
     case "percent":
-      return `What is ${num1}% of ${num2}?`;
+      return `${num1}% of ${num2}?`;
     default:
       return `${num1} + ${num2}`;
   }
