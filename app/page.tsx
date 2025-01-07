@@ -77,8 +77,6 @@ export default function MathPractice() {
     setEquation(generateEquation(operation, difficulty));
   };
 
-  const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate'];
-
   const handleBack = () => {
     if (previousEquation) {
       setEquation(previousEquation);
@@ -107,7 +105,7 @@ export default function MathPractice() {
       setInput((prevInput) => prevInput + value); // Append the value to the input string
     }
   };
-  
+
   const getInputBackgroundColor = () => {
     switch (inputStatus) {
       case "correct":
@@ -177,24 +175,24 @@ export default function MathPractice() {
       </p> */}
 
       <input
-          type="text"
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setInputStatus(""); // Reset input status while typing
-          }}
-          style={{
-            fontSize: "18px",
-            padding: "10px",
-            width: "100px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            color: "black",
-            backgroundColor: getInputBackgroundColor(),
-            transition: "background-color 0.3s",
-          }}
-          autoFocus
-        />
+        type="text"
+        value={input}
+        onChange={(e) => {
+          setInput(e.target.value);
+          setInputStatus(""); // Reset input status while typing
+        }}
+        style={{
+          fontSize: "18px",
+          padding: "10px",
+          width: "100px",
+          borderRadius: "5px",
+          border: "1px solid #ccc",
+          color: "black",
+          backgroundColor: getInputBackgroundColor(),
+          transition: "background-color 0.3s",
+        }}
+        autoFocus
+      />
 
       <div
         style={{
@@ -209,30 +207,30 @@ export default function MathPractice() {
           alignContent: "center",
         }}
       >
-                {/* <span style={{ margin: "0 10px" }}>=</span> */}
+        {/* <span style={{ margin: "0 10px" }}>=</span> */}
 
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate-icon'].map((num, index) => (
-        <button
-          key={index}
-          onClick={() => handleButtonClick(num === 'calculate-icon' ? 'calculate-icon' : num.toString())}
-          style={{
-            fontSize: "30px",
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            backgroundColor: "#f1f1f1",
-            color: "black",
-            cursor: "pointer",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {num === 'calculate-icon' ? <CalculateIcon style={{ fontSize: "35px" }} /> : num}
-        </button>
-      ))}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate-icon'].map((num, index) => (
+          <button
+            key={index}
+            onClick={() => handleButtonClick(num === 'calculate-icon' ? 'calculate-icon' : num.toString())}
+            style={{
+              fontSize: "30px",
+              padding: "20px",
+              borderRadius: "10px",
+              border: "1px solid #ccc",
+              backgroundColor: "#f1f1f1",
+              color: "black",
+              cursor: "pointer",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {num === 'calculate-icon' ? <CalculateIcon style={{ fontSize: "35px" }} /> : num}
+          </button>
+        ))}
 
-        
+
 
         {/* Submit button */}
         <button
@@ -252,29 +250,29 @@ export default function MathPractice() {
             gap: "10px", // Space between icon and text
           }}
         >
-       Submit <ArrowForward style={{ fontSize: "24px" }} />
+          Submit <ArrowForward style={{ fontSize: "24px" }} />
         </button>
 
         {/* Back button */}
         <button
-      onClick={handleBack}
-      style={{
-        fontSize: "20px",
-        padding: "20px",
-        borderRadius: "10px",
-        border: "1px solid #ccc",
-        backgroundColor: "white",
-        color: "black",
-        gridColumn: "span 3",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "10px", // Space between icon and text
-      }}
-    >
-      <ArrowBackIcon style={{ fontSize: "24px" }} /> Back
-    </button>
+          onClick={handleBack}
+          style={{
+            fontSize: "20px",
+            padding: "20px",
+            borderRadius: "10px",
+            border: "1px solid #ccc",
+            backgroundColor: "white",
+            color: "black",
+            gridColumn: "span 3",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px", // Space between icon and text
+          }}
+        >
+          <ArrowBackIcon style={{ fontSize: "24px" }} /> Back
+        </button>
 
         {/* Clear button */}
         <button
@@ -495,12 +493,12 @@ export default function MathPractice() {
         </select>
       </div> */}
 
-            <DrawingPanel
+      <DrawingPanel
         isOpen={isDrawingPanelOpen}
         onClose={() => setIsDrawingPanelOpen(false)}
       />
 
-<AlertModal
+      <AlertModal
         isOpen={isModalOpen}
         message={feedback}
         onClose={() => setIsModalOpen(false)}
