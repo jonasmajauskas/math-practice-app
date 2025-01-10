@@ -229,8 +229,8 @@ export default function MathPractice() {
             marginBottom: 10,
             borderWidth: 1,
             borderColor: "#ccc",
-            width: "90%",
-            maxWidth: 500,
+            width: "100%",
+            // maxWidth: 500,
           }}
         >
           <Text>Operation:</Text>
@@ -271,8 +271,7 @@ export default function MathPractice() {
             marginBottom: 10,
             borderWidth: 1,
             borderColor: "#ccc",
-            width: "90%",
-            maxWidth: 500,
+            width: "100%",
           }}
         >
           <Text>Difficulty:</Text>
