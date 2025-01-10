@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TextInput, View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { evaluate, round } from "mathjs";
 import DrawingPanel from "./editor";
 import AlertModal from "./alertModal";
@@ -169,6 +169,8 @@ export default function MathPractice() {
               {
                 backgroundColor: getInputBackgroundColor(),
                 borderColor: inputStatus === "error" ? "red" : "#ccc",
+                textAlign: 'right',  // Align text to the right
+                writingDirection: 'rtl', // Set writing direction to right-to-left
               },
             ]}
             value={input}
@@ -402,4 +404,3 @@ const styles = StyleSheet.create({
     // backgroundColor: 'lightcoral',
   },
 });
-
