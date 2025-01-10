@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["react-native-web"],
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

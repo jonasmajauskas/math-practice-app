@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { TextInput, View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { evaluate, round } from "mathjs";
 import DrawingPanel from "./editor";
 import AlertModal from "./alertModal";
-import CalculateIcon from '@mui/icons-material/Calculate';
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ClearIcon from "@mui/icons-material/Clear";
-import ArrowForward from "@mui/icons-material/ArrowForward";
+import { MdCalculate, MdInfo, MdRefresh } from 'react-icons/md';
+import { IoIosArrowBack } from "react-icons/io";
+
 
 type Operation = "+" | "-" | "*" | "/" | "frac" | "percent" | "earnings_growth";
 
@@ -18,7 +18,7 @@ export default function MathPractice() {
   const [feedback, setFeedback] = useState("");
   const [operation, setOperation] = useState<Operation>("+");
   const [difficulty, setDifficulty] = useState(1);
-  const [inputStatus, setInputStatus] = useState(""); // Track input status
+  const [inputStatus, setInputStatus] = useState("");
   const [isDrawingPanelOpen, setIsDrawingPanelOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -30,6 +30,39 @@ export default function MathPractice() {
     setTimeout(() => setInputStatus(""), 2000);
   };
 
+  function generateEquation(operation: Operation, difficulty: number) {
+    const max = difficulty * 10;
+
+    const num1 = Math.floor(Math.random() * max) + 1;
+    let num2 = Math.floor(Math.random() * max) + 1;
+
+    if (operation === "earnings_growth") {
+      const previousEPS = Math.floor(Math.random() * 100 + 1) * difficulty;
+      const currentEPS = previousEPS + Math.floor(Math.random() * 50 + 1);
+      return `${previousEPS} to ${currentEPS} EPS growth percentage`;
+    }
+
+    if (operation === "/") {
+      num2 = Math.max(num2, 1);
+    }
+
+    switch (operation) {
+      case "+":
+        return `${num1} + ${num2}`;
+      case "-":
+        return `${num1} - ${num2}`;
+      case "*":
+        return `${num1} * ${num2}`;
+      case "/":
+        return `${num1} / ${num2}`;
+      case "frac":
+        return `${num1} / ${num2}`;
+      case "percent":
+        return `${num1}% of ${num2}?`;
+      default:
+        return `${num1} + ${num2}`;
+    }
+  }
 
   const handleSubmit = () => {
     if (input.trim() === "") {
@@ -86,14 +119,14 @@ export default function MathPractice() {
     }
   };
 
-  const handleOperationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setOperation(e.target.value as Operation);
-    setEquation(generateEquation(e.target.value as Operation, difficulty));
-  };
-
   const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDifficulty(parseInt(e.target.value));
     setEquation(generateEquation(operation, parseInt(e.target.value)));
+  };
+
+  const handleOperationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setOperation(e.target.value as Operation);
+    setEquation(generateEquation(e.target.value as Operation, difficulty));
   };
 
   const handleButtonClick = (value: string) => {
@@ -107,310 +140,105 @@ export default function MathPractice() {
   };
 
   const getInputBackgroundColor = () => {
-    switch (inputStatus) {
-      case "correct":
-        return "lightgreen";
-      case "incorrect":
-        return "lightcoral";
-      case "error":
-        return "lightyellow";
-      default:
-        return "white";
-    }
+    return inputStatus === "error" ? "#ffe6e6" : "#f0f0f0";
   };
 
+  const buttons = [1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate-icon'];
+
+
   return (
-    <div
-      style={{
-        textAlign: "center",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "white",
-        alignItems: "center",  // Align input to the right
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          fontSize: "50px",
-          color: 'black',
-          marginBottom: "20px",
-          justifyContent: "center", // Centers content horizontally within the grid
-        }}
-      >
-        <strong>{equation}</strong>
+    <View style={styles.container}>
+      <View style={styles.equationContainer}>
+        <Text style={styles.equationText}>{equation}</Text>
+        <TouchableOpacity onPress={() => alert('Info icon clicked')}>
+          <MdInfo size={30} color="black" style={styles.infoIcon} />
+        </TouchableOpacity>
+      </View>
 
-        {/* <span style={{ margin: "0 10px" }}>=</span>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setInputStatus(""); // Reset input status while typing
-          }}
-          style={{
-            fontSize: "18px",
-            padding: "10px",
-            width: "100px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            color: "black",
-            backgroundColor: getInputBackgroundColor(),
-            transition: "background-color 0.3s",
-          }}
-          autoFocus
-        /> */}
-      </div>
+      <View style={styles.container2}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <IoIosArrowBack size={30} color="black" />
+        </TouchableOpacity>
 
-      {/* <p style={{ fontSize: "20px", marginTop: "5px" }}>
-        {feedback.split('. ').map((sentence, index) => (
-          <span key={index}>
-            {sentence.trim()}
-            {index < feedback.split('. ').length - 1 && <br />}
-          </span>
-        ))}
-      </p> */}
+        {/* New container for input and clear button */}
+        <View style={styles.rightContainer}>
 
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => {
-          setInput(e.target.value);
-          setInputStatus(""); // Reset input status while typing
-        }}
-        style={{
-          fontSize: "18px",
-          padding: "10px",
-          width: "100px",
-          borderRadius: "5px",
-          border: "1px solid #ccc",
-          color: "black",
-          backgroundColor: getInputBackgroundColor(),
-          transition: "background-color 0.3s",
-        }}
-        autoFocus
-      />
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: getInputBackgroundColor(),
+                borderColor: inputStatus === "error" ? "red" : "#ccc",
+              },
+            ]}
+            value={input}
+            onChangeText={(text) => {
+              setInput(text);
+              setInputStatus(""); // Reset input status while typing
+            }}
+            autoFocus
+          />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "10px",
-          width: "90%", // Adjusts width based on screen size
-          maxWidth: "500px", // Caps the maximum width
-          margin: "0 auto", // Centers horizontally
-          marginTop: "10px",
-          justifyContent: "center", // Centers content horizontally within the grid
-          alignContent: "center",
-        }}
-      >
-        {/* <span style={{ margin: "0 10px" }}>=</span> */}
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={() => setInput(input.slice(0, -1))}
+          >
+            <MdRefresh size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, ".", 0, 'calculate-icon'].map((num, index) => (
-          <button
+
+      {/* <View style={styles.buttonContainer}> */}
+      <View style={styles.gridContainer}>
+        {buttons.map((num, index) => (
+          <TouchableOpacity
             key={index}
-            onClick={() => handleButtonClick(num === 'calculate-icon' ? 'calculate-icon' : num.toString())}
-            style={{
-              fontSize: "30px",
-              padding: "20px",
-              borderRadius: "10px",
-              border: "1px solid #ccc",
-              backgroundColor: "#f1f1f1",
-              color: "black",
-              cursor: "pointer",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            onPress={() => handleButtonClick(num === 'calculate-icon' ? 'calculate-icon' : num.toString())}
+            style={styles.button}
           >
-            {num === 'calculate-icon' ? <CalculateIcon style={{ fontSize: "35px" }} /> : num}
-          </button>
+            {num === 'calculate-icon' ? (
+              <MdCalculate size={40} color="black" />
+            ) : (
+              <Text style={styles.calculatorButtonText}>{num}</Text>
+            )}
+          </TouchableOpacity>
         ))}
+      </View>
+      {/* </View> */}
+
+      <TouchableOpacity onPress={handleSubmit} style={[styles.button, styles.submitButton]}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
 
 
-
-        {/* Submit button */}
-        <button
-          onClick={handleSubmit} // Submit logic
+      <View style={{ alignItems: "center", marginVertical: 20, width: "100%" }}>
+        <View
           style={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "10px",
-            border: "2px solid green",
-            backgroundColor: "white",
-            color: "black",
-            gridColumn: "span 3",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px", // Space between icon and text
-          }}
-        >
-          Submit <ArrowForward style={{ fontSize: "24px" }} />
-        </button>
-
-        {/* Back button */}
-        <button
-          onClick={handleBack}
-          style={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            backgroundColor: "white",
-            color: "black",
-            gridColumn: "span 3",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px", // Space between icon and text
-          }}
-        >
-          <ArrowBackIcon style={{ fontSize: "24px" }} /> Back
-        </button>
-
-        {/* Clear button */}
-        <button
-          onClick={() => setInput(input.slice(0, -1))} // Clear last input
-          style={{
-            fontSize: "20px",
-            padding: "20px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            backgroundColor: "white",
-            color: "black",
-            gridColumn: "span 3",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px", // Space between icon and text
-          }}
-        >
-          <ClearIcon style={{ fontSize: "24px" }} /> Clear
-        </button>
-      </div>
-
-
-      {/* <div>
-        {[...Array(11).keys()].map((num) => (
-          <button
-            key={num}
-            onClick={() => handleButtonClick(num.toString())}
-            style={{
-              fontSize: "18px",
-              padding: "10px",
-              margin: "5px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              backgroundColor: "#f1f1f1",
-              color: "black",
-            }}
-          >
-            {num}
-          </button>
-        ))}
-      </div> */}
-
-      {/* <button
-        onClick={handleSubmit}
-        style={{
-          fontSize: "18px",
-          padding: "10px 20px",
-          borderRadius: "5px",
-          border: "none",
-          backgroundColor: "#007BFF",
-          color: "#fff",
-          cursor: "pointer",
-          marginTop: "20px",
-        }}
-      >
-        Submit Answer
-      </button>
-      <button
-        onClick={handleBack}
-        style={{
-          fontSize: "18px",
-          padding: "10px 20px",
-          borderRadius: "5px",
-          border: "none",
-          backgroundColor: "#28a745",
-          color: "#fff",
-          cursor: "pointer",
-          marginLeft: "10px",
-          marginTop: "20px",
-        }}
-      >
-        Go Back
-      </button> */}
-
-      {/* <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="operation">Choose Operation: </label>
-        <select
-          id="operation"
-          value={operation}
-          onChange={handleOperationChange}
-          style={{
-            fontSize: "18px",
-            padding: "10px",
-            width: "200px",
-            margin: "0 10px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            color: "black",
-          }}
-        >
-          <option value="+">Addition</option>
-          <option value="-">Subtraction</option>
-          <option value="*">Multiplication</option>
-          <option value="/">Division</option>
-          <option value="frac">Fractions</option>
-          <option value="percent">Percentages</option>
-        </select>
-      </div> */}
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          margin: "20px 0",
-          width: "100%"
-        }}
-      >
-        {/* Operation */}
-        <div
-          style={{
-            display: "flex",
+            flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "20px",
-            borderRadius: "10px",
+            padding: 20,
+            borderRadius: 10,
             backgroundColor: "white",
             color: "black",
-            fontSize: "20px",
+            fontSize: 20,
             fontWeight: "bold",
-            marginBottom: "10px",
-            border: "1px solid #ccc",
-            gridColumn: "span 3",
-            cursor: "pointer",
-            width: "90%", // Adjusts width based on screen size
-            maxWidth: "500px", // Caps the maximum width
+            marginBottom: 10,
+            borderWidth: 1,
+            borderColor: "#ccc",
+            width: "90%",
+            maxWidth: 500,
           }}
         >
-          <span>Operation:</span>
+          <Text>Operation:</Text>
           <select
             value={operation}
             onChange={handleOperationChange}
             style={{
-              fontSize: "18px",
-              padding: "5px",
-              borderRadius: "5px",
+              fontSize: 18,
+              padding: 5,
+              borderRadius: 5,
               border: "none",
               backgroundColor: "white",
               color: "black",
@@ -424,36 +252,35 @@ export default function MathPractice() {
             <option value="percent">Percentages</option>
             <option value="earnings_growth">Earnings Growth</option>
           </select>
-        </div>
+        </View>
 
         {/* Difficulty */}
-        <div
+        <View
           style={{
-            display: "flex",
+            flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "20px",
-            borderRadius: "10px",
+            padding: 20,
+            borderRadius: 10,
             backgroundColor: "white",
             color: "black",
-            fontSize: "20px",
+            fontSize: 20,
             fontWeight: "bold",
-            marginBottom: "10px",
-            border: "1px solid #ccc",
-            gridColumn: "span 3",
-            cursor: "pointer",
-            width: "90%", // Adjusts width based on screen size
-            maxWidth: "500px", // Caps the maximum width
+            marginBottom: 10,
+            borderWidth: 1,
+            borderColor: "#ccc",
+            width: "90%",
+            maxWidth: 500,
           }}
         >
-          <span>Difficulty:</span>
+          <Text>Difficulty:</Text>
           <select
             value={difficulty}
             onChange={handleDifficultyChange}
             style={{
-              fontSize: "18px",
-              padding: "5px",
-              borderRadius: "5px",
+              fontSize: 18,
+              padding: 5,
+              borderRadius: 5,
               border: "none",
               backgroundColor: "white",
               color: "black",
@@ -465,78 +292,114 @@ export default function MathPractice() {
               </option>
             ))}
           </select>
-        </div>
-      </div>
-
-
-      {/* <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="difficulty">Select Difficulty (1-10): </label>
-        <select
-          id="difficulty"
-          value={difficulty}
-          onChange={handleDifficultyChange}
-          style={{
-            fontSize: "18px",
-            padding: "10px",
-            width: "200px",
-            margin: "0 10px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            color: "black",
-          }}
-        >
-          {[...Array(10).keys()].map((i) => (
-            <option key={i} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
-      </div> */}
-
-      <DrawingPanel
-        isOpen={isDrawingPanelOpen}
-        onClose={() => setIsDrawingPanelOpen(false)}
-      />
-
-      <AlertModal
-        isOpen={isModalOpen}
-        message={feedback}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </div>
+        </View>
+      </View>
+    </View>
   );
 }
 
-function generateEquation(operation: Operation, difficulty: number) {
-  const max = difficulty * 10;
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    fontFamily: 'Arial, sans-serif',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: '100%', // Use full width of the screen
+    maxWidth: 600, // Limit to 600px max width
+    justifySelf: 'center',
+  },
+  equationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    // justifyContent: 'space-between', // Aligns text and icon to opposite sides
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 10
+  },
+  equationText: {
+    fontSize: 50,
+    color: 'black',
+    fontWeight: 'bold',
+    // marginBottom: 20,
+  },
+  infoIcon: {
+    marginLeft: 20,
+  },
+  helpButton: {
+    marginLeft: 10,
+    padding: 10,
+  },
+  container2: {
+    flexDirection: "row",
+    alignItems: "center", // Align items vertically (centered within the row)
+    justifyContent: 'space-between', // Align items horizontally with space between them
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3, // For Android shadow
+    marginVertical: 10,
+    width: '100%'
+  },
+  input: {
+    fontSize: 18,
+    borderRadius: 5,
+    borderWidth: 1,
+    color: 'black',
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    margin: 10
+  },
+  rightContainer: {
+    flexDirection: "row", // Align items horizontally
+    alignItems: "center", // Vertically center items
+    justifyContent: "flex-end", // Align the items to the right
+    width: '80%', // Adjust width to fit buttons and input
+  },
+  gridContainer: {
+    width: '100%', // Ensure the grid container spans the full width of the screen
+    flexDirection: 'row', // Arrange the buttons horizontally
+    flexWrap: 'wrap', // Allow buttons to wrap to the next row if necessary
+    justifyContent: 'space-between', // Evenly space buttons horizontally
+    // paddingHorizontal: 10, // Optional padding for spacing on the sides
+  },
+  iconPlaceholder: {
+    fontSize: 14,
+    color: 'gray',
+  },
 
-  const num1 = Math.floor(Math.random() * max) + 1;
-  let num2 = Math.floor(Math.random() * max) + 1;
+  button: {
+    width: '30%', // 3 buttons per row (100% / 3 = 33%, so 30% allows for space between buttons)
+    aspectRatio: 1, // Keep buttons square-shaped
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 5, // Add vertical margin for spacing between rows
+    backgroundColor: 'lightgrey',
+    borderRadius: 15
+  },
+  buttonText: {
+    fontSize: 20,
+    color: 'black',
+  },
+  calculatorButtonText: {
+    fontSize: 40,
+    color: 'black',
+  },
+  submitButton: {
+    backgroundColor: 'lightgreen',
+    width: '100%',
+    height: 100, // Set a fixed height (in pixels)
+  },
+  backButton: {
+    // backgroundColor: 'lightblue',
+  },
+  clearButton: {
+    // backgroundColor: 'lightcoral',
+  },
+});
 
-  if (operation === "earnings_growth") {
-    const previousEPS = Math.floor(Math.random() * 100 + 1) * difficulty;
-    const currentEPS = previousEPS + Math.floor(Math.random() * 50 + 1);
-    return `${previousEPS} to ${currentEPS} EPS growth percentage`;
-  }
-
-  if (operation === "/") {
-    num2 = Math.max(num2, 1);
-  }
-
-  switch (operation) {
-    case "+":
-      return `${num1} + ${num2}`;
-    case "-":
-      return `${num1} - ${num2}`;
-    case "*":
-      return `${num1} * ${num2}`;
-    case "/":
-      return `${num1} / ${num2}`;
-    case "frac":
-      return `${num1} / ${num2}`;
-    case "percent":
-      return `${num1}% of ${num2}?`;
-    default:
-      return `${num1} + ${num2}`;
-  }
-}
